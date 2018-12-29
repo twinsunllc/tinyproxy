@@ -438,7 +438,7 @@ BAD_REQUEST_ERROR:
                         goto fail;
                 }
 
-                connptr->connect_method = TRUE;
+                connptr->connect_method = CM_TRUE;
         } else {
 #ifdef TRANSPARENT_PROXY
                 if (!do_transparent_proxy
@@ -1700,7 +1700,7 @@ void handle_connection (int fd)
                              connptr->server_fd);
 
                 if(hashmap_search(hashofheaders, "upgrade") > 0) {
-                        connptr->connect_method = TRUE;
+                        connptr->connect_method = CM_UPGRADE;
                         safe_write (connptr->server_fd, lines, lines_len);
                 }
 
@@ -1718,6 +1718,8 @@ void handle_connection (int fd)
                         update_stats (STAT_BADCONN);
                         goto fail;
                 }
+        } else if (connptr->connect_method == CM_UPGRADE) {
+                /* NOP */ ;
         } else {
                 if (send_ssl_response (connptr) < 0) {
                         log_message (LOG_ERR,
